@@ -1,0 +1,189 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required) - Firebase Auth UID
+    //   - displayName: string (optional)
+    //   - email: string (required) - User email
+    //   - photoURL: string (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: waterLogs
+    // Fields:
+    //   - uid: string (required)
+    //   - amount: number (required, positive)
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: stepLogs
+    // Fields:
+    //   - uid: string (required)
+    //   - count: number (required, >= 0)
+    //   - date: string (required, YYYY-MM-DD)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: heartRateLogs
+    // Fields:
+    //   - uid: string (required)
+    //   - bpm: number (required, positive)
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: habits
+    // Fields:
+    //   - uid: string (required)
+    //   - title: string (required, size < 100)
+    //   - type: string (required, enum: ['good', 'bad'])
+    //   - completed: bool (required)
+    //   - date: string (required, YYYY-MM-DD)
+    //
+    // Collection: diaryNotes
+    // Fields:
+    //   - uid: string (required)
+    //   - content: string (required, size < 5000)
+    //   - date: string (required, YYYY-MM-DD)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function requestMatchesAuth() {
+      return request.resource.data.uid == request.auth.uid;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDate(date) {
+      return date is string && date.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             isValidEmail(data.email) &&
+             data.createdAt is timestamp &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() < 100)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 500));
+    }
+
+    function isValidWaterLog(data) {
+      return data.uid == request.auth.uid &&
+             data.amount is number && 
+             data.amount > 0 && data.amount < 10000 &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidStepLog(data) {
+      return data.uid == request.auth.uid &&
+             data.count is number && data.count >= 0 && data.count < 1000000 &&
+             isValidDate(data.date) &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidHeartRateLog(data) {
+      return data.uid == request.auth.uid &&
+             data.bpm is number && 
+             data.bpm > 0 && data.bpm < 300 &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidHabit(data) {
+      return data.uid == request.auth.uid &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.type in ['good', 'bad'] &&
+             data.completed is bool &&
+             isValidDate(data.date);
+    }
+
+    function isValidDiaryNote(data) {
+      return data.uid == request.auth.uid &&
+             data.content is string && data.content.size() > 0 && data.content.size() < 5000 &&
+             isValidDate(data.date) &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && isValidUser(request.resource.data);
+      allow update: if isOwner(uid) && isValidUser(request.resource.data) && 
+                    request.resource.data.uid == resource.data.uid &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    match /waterLogs/{logId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidWaterLog(request.resource.data);
+      allow update: if isDocOwner() && isValidWaterLog(request.resource.data) &&
+                    request.resource.data.uid == resource.data.uid;
+      allow delete: if isDocOwner();
+    }
+
+    match /stepLogs/{logId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidStepLog(request.resource.data);
+      allow update: if isDocOwner() && isValidStepLog(request.resource.data) &&
+                    request.resource.data.uid == resource.data.uid;
+      allow delete: if isDocOwner();
+    }
+
+    match /heartRateLogs/{logId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid &&
+                    request.resource.data.bpm is number &&
+                    request.resource.data.timestamp is timestamp;
+      allow update: if isDocOwner() && request.resource.data.uid == resource.data.uid &&
+                    request.resource.data.bpm is number;
+      allow delete: if isDocOwner();
+    }
+
+    match /habits/{habitId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidHabit(request.resource.data);
+      allow update: if isDocOwner() && isValidHabit(request.resource.data) &&
+                    request.resource.data.uid == resource.data.uid;
+      allow delete: if isDocOwner();
+    }
+
+    match /diaryNotes/{noteId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidDiaryNote(request.resource.data);
+      allow update: if isDocOwner() && isValidDiaryNote(request.resource.data) &&
+                    request.resource.data.uid == resource.data.uid &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isDocOwner();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

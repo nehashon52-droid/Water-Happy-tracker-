@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user-specific settings and profile information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "WaterLog": {
+      "title": "Water Intake Log",
+      "description": "Daily water consumption tracking.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "amount": { "type": "number", "description": "Amount in ml" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "amount", "timestamp"]
+    },
+    "StepLog": {
+      "title": "Steps Log",
+      "description": "Daily step count tracking.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "count": { "type": "number" },
+        "date": { "type": "string", "description": "YYYY-MM-DD" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "count", "date"]
+    },
+    "HeartRateLog": {
+      "title": "Heart Rate Log",
+      "description": "Heart rate measurements.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "bpm": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "bpm", "timestamp"]
+    },
+    "Habit": {
+      "title": "Habit Tracker",
+      "description": "Morning habits (good/bad) to follow or leave.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["good", "bad"] },
+        "completed": { "type": "boolean" },
+        "date": { "type": "string", "description": "YYYY-MM-DD" }
+      },
+      "required": ["uid", "title", "type", "date"]
+    },
+    "DiaryNote": {
+      "title": "Diary Note",
+      "description": "Nightly diary notes about the day.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "content": { "type": "string" },
+        "date": { "type": "string", "description": "YYYY-MM-DD" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "content", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profile documents"
+    },
+    "/waterLogs/{logId}": {
+      "schema": "WaterLog",
+      "description": "Water intake records"
+    },
+    "/stepLogs/{logId}": {
+      "schema": "StepLog",
+      "description": "Daily step counts"
+    },
+    "/heartRateLogs/{logId}": {
+      "schema": "HeartRateLog",
+      "description": "Heart rate records"
+    },
+    "/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "Habit tracking records"
+    },
+    "/diaryNotes/{noteId}": {
+      "schema": "DiaryNote",
+      "description": "Daily diary entries"
+    }
+  }
+}
