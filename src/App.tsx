@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Component } from 'react';
 import { auth, db, onAuthStateChanged, signInWithPopup, googleProvider, signOut, User, collection, query, where, onSnapshot, orderBy, limit, addDoc, Timestamp, updateDoc, deleteDoc, doc, handleFirestoreError, OperationType, getDoc, setDoc } from './lib/firebase';
-import { LogIn, LogOut, Droplets, Footprints, Heart, Smile, Sun, Moon, Plus, Check, Trash2, BookOpen, AlertCircle } from 'lucide-react';
+import { LogIn, LogOut, Droplets, Footprints, Heart, Smile, Sun, Moon, Plus, Check, Trash2, BookOpen, AlertCircle, Zap, Shield, Crown, Cloud, Utensils, Calculator, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format } from 'date-fns';
 import { getJoke } from './services/geminiService';
@@ -148,6 +148,194 @@ const BackgroundAnimation = () => {
       {/* Floating Blobs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/10 blur-[120px] rounded-full" />
+    </div>
+  );
+};
+
+const ProPlansSection = () => {
+  const plans = [
+    {
+      name: 'Free',
+      price: '$0',
+      description: 'Essential wellness tracking for everyone.',
+      icon: Shield,
+      color: 'text-slate-400',
+      bgColor: 'bg-slate-500/10',
+      borderColor: 'border-slate-500/20',
+      features: [
+        'Basic Water Tracking',
+        'Step Counter',
+        'Heart Rate Logging',
+        'Daily Happy Tracker',
+        'Limited Diary Entries (5)',
+      ],
+      buttonText: 'Current Plan',
+      buttonVariant: 'outline',
+    },
+    {
+      name: 'Pro',
+      price: '$9.99',
+      period: '/mo',
+      description: 'Advanced insights and personalized plans.',
+      icon: Zap,
+      color: 'text-indigo-400',
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/30',
+      popular: true,
+      features: [
+        'Everything in Free',
+        'Personalized Diet Plans',
+        'Calorie & Macro Calculator',
+        'Unlimited Diary Entries',
+        '5GB Cloud Storage',
+        'Ad-free Experience',
+      ],
+      buttonText: 'Upgrade to Pro',
+      buttonVariant: 'primary',
+    },
+    {
+      name: 'Elite',
+      price: '$19.99',
+      period: '/mo',
+      description: 'The ultimate health & performance suite.',
+      icon: Crown,
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/30',
+      features: [
+        'Everything in Pro',
+        'AI Nutritionist Chat',
+        'Custom Workout Routines',
+        '100GB Cloud Storage',
+        'Priority Support',
+        'Early Access to Features',
+      ],
+      buttonText: 'Go Elite',
+      buttonVariant: 'secondary',
+      btnClass: 'bg-amber-600 hover:bg-amber-500 text-white border-none',
+    },
+  ];
+
+  return (
+    <div className="space-y-12">
+      <div className="text-center space-y-4">
+        <motion.h2 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-bold text-white tracking-tight"
+        >
+          Elevate Your Wellness Journey
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-slate-400 max-w-2xl mx-auto"
+        >
+          Unlock powerful features designed to help you reach your health goals faster. From precision calorie tracking to secure cloud backups.
+        </motion.p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {plans.map((plan, i) => (
+          <motion.div
+            key={plan.name}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 + 0.3 }}
+            className={cn(
+              "relative glass-morphism rounded-3xl p-8 flex flex-col border transition-all hover:scale-[1.02]",
+              plan.borderColor,
+              plan.popular && "ring-2 ring-indigo-500 ring-offset-4 ring-offset-slate-950"
+            )}
+          >
+            {plan.popular && (
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+                Most Popular
+              </div>
+            )}
+            
+            <div className="mb-8">
+              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-4", plan.bgColor)}>
+                <plan.icon className={cn("w-6 h-6", plan.color)} />
+              </div>
+              <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-4xl font-bold text-white">{plan.price}</span>
+                {plan.period && <span className="text-slate-500">{plan.period}</span>}
+              </div>
+              <p className="text-sm text-slate-400 mt-4 leading-relaxed">{plan.description}</p>
+            </div>
+
+            <div className="space-y-4 flex-grow mb-8">
+              {plan.features.map((feature, j) => (
+                <div key={j} className="flex items-start gap-3 text-sm text-slate-300">
+                  <div className="mt-1 w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-emerald-400" />
+                  </div>
+                  {feature}
+                </div>
+              ))}
+            </div>
+
+            <Button 
+              variant={plan.buttonVariant} 
+              className={cn("w-full py-4 rounded-2xl", plan.btnClass)}
+            >
+              {plan.buttonText}
+            </Button>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Feature Deep Dive */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
+        <Card title="Diet & Nutrition" icon={Utensils} className="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 border-emerald-500/20">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-emerald-500/10">
+              <div className="p-3 bg-emerald-500/20 rounded-xl">
+                <Calculator className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-white">Calorie Calculator</h4>
+                <p className="text-xs text-slate-400">Pro & Elite plans include precision BMR and TDEE calculations based on your activity levels.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-emerald-500/10">
+              <div className="p-3 bg-indigo-500/20 rounded-xl">
+                <Sparkles className="w-6 h-6 text-indigo-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-white">AI Meal Planning</h4>
+                <p className="text-xs text-slate-400">Get personalized meal suggestions that fit your macros and dietary preferences automatically.</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Cloud & Security" icon={Cloud} className="bg-gradient-to-br from-blue-500/5 to-indigo-500/5 border-blue-500/20">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-blue-500/10">
+              <div className="p-3 bg-blue-500/20 rounded-xl">
+                <Shield className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-white">Encrypted Backups</h4>
+                <p className="text-xs text-slate-400">Your health data and diary entries are backed up with military-grade encryption in our cloud.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-2xl border border-blue-500/10">
+              <div className="p-3 bg-purple-500/20 rounded-xl">
+                <Cloud className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-white">Multi-Device Sync</h4>
+                <p className="text-xs text-slate-400">Access your trackers and diary from any device. Your progress stays with you everywhere.</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };
@@ -316,6 +504,23 @@ function AppContent() {
               <Droplets className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-xl text-white tracking-tight">Water Happy</span>
+            <nav className="hidden md:flex items-center gap-1 ml-8">
+              <Button 
+                variant="ghost" 
+                onClick={() => setActiveTab('dashboard')}
+                className={cn("px-4 py-1.5 text-sm rounded-full", activeTab === 'dashboard' ? "bg-slate-800 text-white" : "text-slate-400")}
+              >
+                Dashboard
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => setActiveTab('pro')}
+                className={cn("px-4 py-1.5 text-sm rounded-full flex items-center gap-2", activeTab === 'pro' ? "bg-indigo-500/20 text-indigo-400" : "text-slate-400")}
+              >
+                <Zap className="w-3.5 h-3.5" />
+                Pro Plans
+              </Button>
+            </nav>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden sm:block text-right">
@@ -329,277 +534,297 @@ function AppContent() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8 relative z-10">
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Water Tracker */}
-          <Card title="Water Intake" icon={Droplets} className="md:col-span-1">
-            <div className="text-center py-4">
-              <div className="text-4xl font-bold text-indigo-400">{totalWater} <span className="text-lg font-normal text-slate-500">ml</span></div>
-              <p className="text-sm text-slate-500 mt-1">Daily Goal: 2500ml</p>
-              <div className="mt-4 h-2 bg-slate-800 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min((totalWater / 2500) * 100, 100)}%` }}
-                  className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              {[250, 500, 750].map(amt => (
-                <Button key={amt} onClick={() => addWater(amt)} variant="secondary" className="text-xs px-2">
-                  +{amt}ml
-                </Button>
-              ))}
-            </div>
-          </Card>
-
-          {/* Steps Tracker */}
-          <Card title="Steps Today" icon={Footprints} className="md:col-span-1">
-            <div className="text-center py-4">
-              <div className="text-4xl font-bold text-emerald-400">{stepLogs[0]?.count || 0} <span className="text-lg font-normal text-slate-500">steps</span></div>
-              <p className="text-sm text-slate-500 mt-1">Goal: 10,000</p>
-            </div>
-            <Button onClick={async () => {
-              const current = stepLogs[0]?.count || 0;
-              const today = format(new Date(), 'yyyy-MM-dd');
-              try {
-                if (stepLogs[0]) {
-                  await updateDoc(doc(db, 'stepLogs', stepLogs[0].id), { count: current + 1000, updatedAt: Timestamp.now() });
-                } else {
-                  await addDoc(collection(db, 'stepLogs'), { uid: user.uid, count: 1000, date: today, updatedAt: Timestamp.now() });
-                }
-              } catch (e) {
-                handleFirestoreError(e, OperationType.WRITE, 'stepLogs');
-              }
-            }} variant="secondary" className="w-full" icon={Plus}>
-              Add 1000 Steps
-            </Button>
-          </Card>
-
-          {/* Heart Rate */}
-          <Card title="Heart Rate" icon={Heart} className="md:col-span-1">
-            <div className="text-center py-4">
-              <div className="text-4xl font-bold text-rose-400">{heartLogs[0]?.bpm || '--'} <span className="text-lg font-normal text-slate-500">bpm</span></div>
-              <p className="text-sm text-slate-500 mt-1">Last measured: {heartLogs[0] ? format(heartLogs[0].timestamp.toDate(), 'HH:mm') : 'Never'}</p>
-            </div>
-            <div className="flex gap-2">
-              <input 
-                type="number" 
-                placeholder="BPM" 
-                id="bpmInput"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50"
-              />
-              <Button onClick={() => {
-                const el = document.getElementById('bpmInput') as HTMLInputElement;
-                const val = parseInt(el.value);
-                if (el.value && !isNaN(val) && val > 0) {
-                  addHeartRate(val);
-                  el.value = '';
-                }
-              }} variant="secondary" className="bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border-rose-500/20">
-                Log
-              </Button>
-            </div>
-          </Card>
-        </div>
-
-        {/* Happy Tracker & Habits */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Happy Tracker */}
-          <Card title="Happy Tracker" icon={Smile} className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border-indigo-500/20">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-indigo-400 uppercase mb-1">How are you feeling?</label>
-                  <select 
-                    value={mood} 
-                    onChange={(e) => setMood(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                  >
-                    {['Happy', 'Sad', 'Bored', 'Stressed', 'Energetic'].map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
+        {activeTab === 'dashboard' ? (
+          <>
+            {/* Dashboard Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Water Tracker */}
+              <Card title="Water Intake" icon={Droplets} className="md:col-span-1">
+                <div className="text-center py-4">
+                  <div className="text-4xl font-bold text-indigo-400">{totalWater} <span className="text-lg font-normal text-slate-500">ml</span></div>
+                  <p className="text-sm text-slate-500 mt-1">Daily Goal: 2500ml</p>
+                  <div className="mt-4 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((totalWater / 2500) * 100, 100)}%` }}
+                      className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-indigo-400 uppercase mb-1">Joke Zone</label>
-                  <select 
-                    value={jokeZone} 
-                    onChange={(e) => setJokeZone(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                  >
-                    {['Dad Jokes', 'Puns', 'Knock-Knock', 'Sarcastic', 'Wholesome'].map(z => <option key={z} value={z}>{z}</option>)}
-                  </select>
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                  {[250, 500, 750].map(amt => (
+                    <Button key={amt} onClick={() => addWater(amt)} variant="secondary" className="text-xs px-2">
+                      +{amt}ml
+                    </Button>
+                  ))}
                 </div>
-              </div>
-              
-              <Button 
-                onClick={generateJoke} 
-                disabled={jokeLoading}
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30"
-                icon={Smile}
-              >
-                {jokeLoading ? 'Thinking of something funny...' : 'Make Me Happy!'}
-              </Button>
+              </Card>
 
-              <AnimatePresence mode="wait">
-                {currentJoke && (
-                  <motion.div 
-                    key={currentJoke}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="bg-slate-800/50 p-4 rounded-2xl border border-indigo-500/20 text-slate-200 italic text-center relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500" />
-                    "{currentJoke}"
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </Card>
-
-          {/* Morning Habits */}
-          <Card title="Morning Habits" icon={Sun} className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 border-amber-500/20">
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="New habit..." 
-                  id="habitInput"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                />
-                <select id="habitType" className="bg-slate-800 border border-slate-700 rounded-xl px-2 text-sm text-slate-200">
-                  <option value="good">Good</option>
-                  <option value="bad">Bad</option>
-                </select>
+              {/* Steps Tracker */}
+              <Card title="Steps Today" icon={Footprints} className="md:col-span-1">
+                <div className="text-center py-4">
+                  <div className="text-4xl font-bold text-emerald-400">{stepLogs[0]?.count || 0} <span className="text-lg font-normal text-slate-500">steps</span></div>
+                  <p className="text-sm text-slate-500 mt-1">Goal: 10,000</p>
+                </div>
                 <Button onClick={async () => {
-                  const input = document.getElementById('habitInput') as HTMLInputElement;
-                  const type = document.getElementById('habitType') as HTMLSelectElement;
-                  if (input.value) {
-                    try {
-                      await addDoc(collection(db, 'habits'), {
-                        uid: user.uid,
-                        title: input.value,
-                        type: type.value,
-                        completed: false,
-                        date: format(new Date(), 'yyyy-MM-dd')
-                      });
-                      input.value = '';
-                    } catch (e) {
-                      handleFirestoreError(e, OperationType.CREATE, 'habits');
+                  const current = stepLogs[0]?.count || 0;
+                  const today = format(new Date(), 'yyyy-MM-dd');
+                  try {
+                    if (stepLogs[0]) {
+                      await updateDoc(doc(db, 'stepLogs', stepLogs[0].id), { count: current + 1000, updatedAt: Timestamp.now() });
+                    } else {
+                      await addDoc(collection(db, 'stepLogs'), { uid: user.uid, count: 1000, date: today, updatedAt: Timestamp.now() });
                     }
+                  } catch (e) {
+                    handleFirestoreError(e, OperationType.WRITE, 'stepLogs');
                   }
-                }} variant="secondary" className="bg-amber-600 text-white hover:bg-amber-500 border-none">
-                  Add
+                }} variant="secondary" className="w-full" icon={Plus}>
+                  Add 1000 Steps
                 </Button>
-              </div>
+              </Card>
 
-              <div className="space-y-2">
-                {habits.map(habit => (
-                  <motion.div 
-                    layout
-                    key={habit.id} 
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border transition-all",
-                      habit.completed ? "border-emerald-500/30 bg-emerald-500/5" : "border-slate-700"
-                    )}
+              {/* Heart Rate */}
+              <Card title="Heart Rate" icon={Heart} className="md:col-span-1">
+                <div className="text-center py-4">
+                  <div className="text-4xl font-bold text-rose-400">{heartLogs[0]?.bpm || '--'} <span className="text-lg font-normal text-slate-500">bpm</span></div>
+                  <p className="text-sm text-slate-500 mt-1">Last measured: {heartLogs[0] ? format(heartLogs[0].timestamp.toDate(), 'HH:mm') : 'Never'}</p>
+                </div>
+                <div className="flex gap-2">
+                  <input 
+                    type="number" 
+                    placeholder="BPM" 
+                    id="bpmInput"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+                  />
+                  <Button onClick={() => {
+                    const el = document.getElementById('bpmInput') as HTMLInputElement;
+                    const val = parseInt(el.value);
+                    if (el.value && !isNaN(val) && val > 0) {
+                      addHeartRate(val);
+                      el.value = '';
+                    }
+                  }} variant="secondary" className="bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border-rose-500/20">
+                    Log
+                  </Button>
+                </div>
+              </Card>
+            </div>
+
+            {/* Happy Tracker & Habits */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Happy Tracker */}
+              <Card title="Happy Tracker" icon={Smile} className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border-indigo-500/20">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-indigo-400 uppercase mb-1">How are you feeling?</label>
+                      <span className="block text-[10px] text-slate-500 mb-1">Select your mood</span>
+                      <select 
+                        value={mood} 
+                        onChange={(e) => setMood(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                      >
+                        {['Happy', 'Sad', 'Bored', 'Stressed', 'Energetic'].map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-indigo-400 uppercase mb-1">Joke Zone</label>
+                      <span className="block text-[10px] text-slate-500 mb-1">Pick a style</span>
+                      <select 
+                        value={jokeZone} 
+                        onChange={(e) => setJokeZone(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                      >
+                        {['Dad Jokes', 'Puns', 'Knock-Knock', 'Sarcastic', 'Wholesome'].map(z => <option key={z} value={z}>{z}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={generateJoke} 
+                    disabled={jokeLoading}
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30"
+                    icon={Smile}
                   >
-                    <div className="flex items-center gap-3">
-                      <button 
-                        onClick={async () => {
-                          try {
-                            await updateDoc(doc(db, 'habits', habit.id), { completed: !habit.completed });
-                          } catch (e) {
-                            handleFirestoreError(e, OperationType.UPDATE, `habits/${habit.id}`);
-                          }
-                        }}
+                    {jokeLoading ? 'Thinking of something funny...' : 'Make Me Happy!'}
+                  </Button>
+
+                  <AnimatePresence mode="wait">
+                    {currentJoke && (
+                      <motion.div 
+                        key={currentJoke}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="bg-slate-800/50 p-4 rounded-2xl border border-indigo-500/20 text-slate-200 italic text-center relative overflow-hidden"
+                      >
+                        <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500" />
+                        "{currentJoke}"
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Card>
+
+              {/* Morning Habits */}
+              <Card title="Morning Habits" icon={Sun} className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 border-amber-500/20">
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="New habit..." 
+                      id="habitInput"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    />
+                    <select id="habitType" className="bg-slate-800 border border-slate-700 rounded-xl px-2 text-sm text-slate-200">
+                      <option value="good">Good</option>
+                      <option value="bad">Bad</option>
+                    </select>
+                    <Button onClick={async () => {
+                      const input = document.getElementById('habitInput') as HTMLInputElement;
+                      const type = document.getElementById('habitType') as HTMLSelectElement;
+                      if (input.value) {
+                        try {
+                          await addDoc(collection(db, 'habits'), {
+                            uid: user.uid,
+                            title: input.value,
+                            type: type.value,
+                            completed: false,
+                            date: format(new Date(), 'yyyy-MM-dd')
+                          });
+                          input.value = '';
+                        } catch (e) {
+                          handleFirestoreError(e, OperationType.CREATE, 'habits');
+                        }
+                      }
+                    }} variant="secondary" className="bg-amber-600 text-white hover:bg-amber-500 border-none">
+                      Add
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {habits.map(habit => (
+                      <motion.div 
+                        layout
+                        key={habit.id} 
                         className={cn(
-                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                          habit.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-600"
+                          "flex items-center justify-between p-3 rounded-xl bg-slate-800/50 border transition-all",
+                          habit.completed ? "border-emerald-500/30 bg-emerald-500/5" : "border-slate-700"
                         )}
                       >
-                        {habit.completed && <Check className="w-4 h-4" />}
-                      </button>
-                      <div>
-                        <p className={cn("text-sm font-medium", habit.completed ? "line-through text-slate-500" : "text-slate-200")}>{habit.title}</p>
-                        <span className={cn("text-[10px] uppercase font-bold px-1.5 py-0.5 rounded", habit.type === 'good' ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400")}>
-                          {habit.type === 'good' ? 'Good Habit' : 'Leave Bad Habit'}
-                        </span>
-                      </div>
-                    </div>
-                    <Button onClick={async () => {
-                      try {
-                        await deleteDoc(doc(db, 'habits', habit.id));
-                      } catch (e) {
-                        handleFirestoreError(e, OperationType.DELETE, `habits/${habit.id}`);
-                      }
-                    }} variant="ghost" className="p-1 text-slate-600 hover:text-rose-400" icon={Trash2} />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Nightly Diary */}
-        <Card title="Nightly Diary" icon={Moon} className="bg-slate-900 border-slate-800">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 uppercase">How was your day?</label>
-              <textarea 
-                id="diaryInput"
-                placeholder="Write your nightly notes here..."
-                className="w-full h-32 bg-slate-800 border border-slate-700 rounded-2xl p-4 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
-              />
-              <div className="flex justify-end">
-                <Button onClick={async () => {
-                  const el = document.getElementById('diaryInput') as HTMLTextAreaElement;
-                  if (el.value) {
-                    try {
-                      await addDoc(collection(db, 'diaryNotes'), {
-                        uid: user.uid,
-                        content: el.value,
-                        date: format(new Date(), 'yyyy-MM-dd'),
-                        createdAt: Timestamp.now()
-                      });
-                      el.value = '';
-                    } catch (e) {
-                      handleFirestoreError(e, OperationType.CREATE, 'diaryNotes');
-                    }
-                  }
-                }} className="bg-indigo-600 hover:bg-indigo-500">
-                  Save Entry
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-xs font-semibold text-slate-500 uppercase border-b border-slate-800 pb-2">Recent Entries</h4>
-              {diaryNotes.map(note => (
-                <div key={note.id} className="bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{format(note.createdAt.toDate(), 'MMM dd, yyyy')}</span>
-                    <Button onClick={async () => {
-                      try {
-                        await deleteDoc(doc(db, 'diaryNotes', note.id));
-                      } catch (e) {
-                        handleFirestoreError(e, OperationType.DELETE, `diaryNotes/${note.id}`);
-                      }
-                    }} variant="ghost" className="p-0 h-auto text-slate-600 hover:text-rose-400" icon={Trash2} />
+                        <div className="flex items-center gap-3">
+                          <button 
+                            onClick={async () => {
+                              try {
+                                await updateDoc(doc(db, 'habits', habit.id), { completed: !habit.completed });
+                              } catch (e) {
+                                handleFirestoreError(e, OperationType.UPDATE, `habits/${habit.id}`);
+                              }
+                            }}
+                            className={cn(
+                              "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                              habit.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-600"
+                            )}
+                          >
+                            {habit.completed && <Check className="w-4 h-4" />}
+                          </button>
+                          <div>
+                            <p className={cn("text-sm font-medium", habit.completed ? "line-through text-slate-500" : "text-slate-200")}>{habit.title}</p>
+                            <span className={cn("text-[10px] uppercase font-bold px-1.5 py-0.5 rounded", habit.type === 'good' ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400")}>
+                              {habit.type === 'good' ? 'Good Habit' : 'Leave Bad Habit'}
+                            </span>
+                          </div>
+                        </div>
+                        <Button onClick={async () => {
+                          try {
+                            await deleteDoc(doc(db, 'habits', habit.id));
+                          } catch (e) {
+                            handleFirestoreError(e, OperationType.DELETE, `habits/${habit.id}`);
+                          }
+                        }} variant="ghost" className="p-1 text-slate-600 hover:text-rose-400" icon={Trash2} />
+                      </motion.div>
+                    ))}
                   </div>
-                  <p className="text-sm text-slate-400 whitespace-pre-wrap leading-relaxed">{note.content}</p>
                 </div>
-              ))}
+              </Card>
             </div>
-          </div>
-        </Card>
+
+            {/* Nightly Diary */}
+            <Card title="Nightly Diary" icon={Moon} className="bg-slate-900 border-slate-800">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-500 uppercase">How was your day?</label>
+                  <textarea 
+                    id="diaryInput"
+                    placeholder="Write your nightly notes here..."
+                    className="w-full h-32 bg-slate-800 border border-slate-700 rounded-2xl p-4 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
+                  />
+                  <div className="flex justify-end">
+                    <Button onClick={async () => {
+                      const el = document.getElementById('diaryInput') as HTMLTextAreaElement;
+                      if (el.value) {
+                        try {
+                          await addDoc(collection(db, 'diaryNotes'), {
+                            uid: user.uid,
+                            content: el.value,
+                            date: format(new Date(), 'yyyy-MM-dd'),
+                            createdAt: Timestamp.now()
+                          });
+                          el.value = '';
+                        } catch (e) {
+                          handleFirestoreError(e, OperationType.CREATE, 'diaryNotes');
+                        }
+                      }
+                    }} className="bg-indigo-600 hover:bg-indigo-500">
+                      Save Entry
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-xs font-semibold text-slate-500 uppercase border-b border-slate-800 pb-2">Recent Entries</h4>
+                  {diaryNotes.map(note => (
+                    <div key={note.id} className="bg-slate-800/30 p-4 rounded-2xl border border-slate-700/30">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{format(note.createdAt.toDate(), 'MMM dd, yyyy')}</span>
+                        <Button onClick={async () => {
+                          try {
+                            await deleteDoc(doc(db, 'diaryNotes', note.id));
+                          } catch (e) {
+                            handleFirestoreError(e, OperationType.DELETE, `diaryNotes/${note.id}`);
+                          }
+                        }} variant="ghost" className="p-0 h-auto text-slate-600 hover:text-rose-400" icon={Trash2} />
+                      </div>
+                      <p className="text-sm text-slate-400 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          </>
+        ) : (
+          <ProPlansSection />
+        )}
       </main>
 
       {/* Navigation Rail (Mobile) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-lg border-t border-slate-800 p-2 flex justify-around sm:hidden z-30">
-        <Button variant="ghost" className="flex-col gap-1 p-2 text-[10px]" icon={Droplets}>Water</Button>
-        <Button variant="ghost" className="flex-col gap-1 p-2 text-[10px]" icon={Footprints}>Steps</Button>
-        <Button variant="ghost" className="flex-col gap-1 p-2 text-[10px]" icon={Smile}>Happy</Button>
-        <Button variant="ghost" className="flex-col gap-1 p-2 text-[10px]" icon={BookOpen}>Diary</Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => setActiveTab('dashboard')}
+          className={cn("flex-col gap-1 p-2 text-[10px]", activeTab === 'dashboard' ? "text-indigo-400" : "text-slate-500")} 
+          icon={Droplets}
+        >
+          Dash
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => setActiveTab('pro')}
+          className={cn("flex-col gap-1 p-2 text-[10px]", activeTab === 'pro' ? "text-indigo-400" : "text-slate-500")} 
+          icon={Zap}
+        >
+          Pro
+        </Button>
       </nav>
     </div>
   );
